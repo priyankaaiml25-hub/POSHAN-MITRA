@@ -1,0 +1,22 @@
+{
+  "short_name": "PoshanMitra",
+  "name": "Poshan Mitra - Anganwadi Child Welfare & Nutrition Platform",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FDFBF7",
+  "theme_color": "#1E5E3A",
+  "display": "standalone",
+  "description": "Smart Diet, Nutrition Awareness and Child Welfare Platform for Anganwadi Centres in India."
+}
+

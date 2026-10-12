@@ -1,0 +1,26 @@
+{
+  "name": "poshan-mitra",
+  "version": "1.0.0",
+  "description": "Poshan Mitra - Smart Diet, Nutrition Awareness and Child Welfare Platform for Anganwadi Centres in India",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "test:backend": "npm --prefix backend test",
+    "test:frontend": "npm --prefix frontend test",
+    "test": "npm run test:backend && npm run test:frontend",
+    "seed": "npm --prefix backend run seed"
+  },
+  "keywords": [
+    "poshan",
+    "anganwadi",
+    "nutrition",
+    "child-welfare",
+    "india",
+    "who-growth-standards"
+  ],
+  "author": "Poshan Mitra Project Team",
+  "license": "MIT"
+}

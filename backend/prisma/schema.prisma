@@ -1,0 +1,164 @@
+// Prisma Schema for Poshan Mitra
+// Default provider is SQLite for zero-configuration college evaluation and local testing.
+// For PostgreSQL, change provider to "postgresql" and set DATABASE_URL in .env.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  role         String      @default("WORKER") // ADMIN, WORKER, PARENT
+  centreId     String?
+  phone        String?
+  language     String      @default("en") // en, hi, kn
+  centre       Centre?     @relation(fields: [centreId], references: [id])
+  tasks        FollowUpTask[]
+  auditLogs    AuditLog[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Centre {
+  id           String      @id @default(uuid())
+  name         String
+  code         String      @unique
+  state        String      @default("Karnataka")
+  district     String      @default("Bengaluru Urban")
+  pincode      String      @default("560001")
+  contactPhone String?
+  users        User[]
+  children     Child[]
+  tasks        FollowUpTask[]
+  createdAt    DateTime    @default(now())
+}
+
+model Child {
+  id            String              @id @default(uuid())
+  referenceId   String              @unique // Pseudonymous reference ID, e.g., "CH-BLR-001"
+  centreId      String
+  centre        Centre              @relation(fields: [centreId], references: [id])
+  dateOfBirth   DateTime
+  gender        String              // MALE, FEMALE
+  guardianName  String?
+  guardianPhone String?
+  active        Boolean             @default(true)
+  measurements  GrowthMeasurement[]
+  tasks         FollowUpTask[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+model GrowthMeasurement {
+  id              String   @id @default(uuid())
+  childId         String
+  child           Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  measurementDate DateTime
+  weightKg        Float
+  heightCm        Float
+  waz             Float?   // Weight-for-Age Z-Score (WHO standards)
+  haz             Float?   // Height-for-Age Z-Score (WHO standards)
+  whz             Float?   // Weight-for-Height Z-Score (WHO standards)
+  statusWaz       String?  // NORMAL, MODERATE_UNDERWEIGHT, SEVERE_UNDERWEIGHT
+  statusHaz       String?  // NORMAL, MODERATE_STUNTING, SEVERE_STUNTING
+  statusWhz       String?  // NORMAL, MODERATE_WASTING, SEVERE_WASTING
+  needsReview     Boolean  @default(false)
+  reviewNotes     String?
+  recordedBy      String   @default("Anganwadi Worker")
+  createdAt       DateTime @default(now())
+}
+
+model FollowUpTask {
+  id               String    @id @default(uuid())
+  childId          String?
+  child            Child?    @relation(fields: [childId], references: [id], onDelete: SetNull)
+  centreId         String
+  centre           Centre    @relation(fields: [centreId], references: [id])
+  title            String
+  description      String?
+  category         String    @default("NUTRITION_COUNSELLING") // NUTRITION_COUNSELLING, GROWTH_MONITORING, PARENT_EDUCATION, ASHA_ANM_REFERRAL, ADMIN_FOLLOWUP
+  priority         String    @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  dueDate          DateTime
+  status           String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+  assignedWorkerId String?
+  assignedWorker   User?     @relation(fields: [assignedWorkerId], references: [id])
+  completionNotes  String?
+  completedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model NutritionLesson {
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  titleEn        String
+  titleHi        String
+  titleKn        String
+  category       String   // ENERGY, PROTEIN, MICRONUTRIENTS, HYGIENE, FEEDING
+  readTimeMin    Int      @default(5)
+  summaryEn      String
+  summaryHi      String
+  summaryKn      String
+  contentJson    String   // Rich structured sections, illustrations, food examples, quizzes
+  orderIndex     Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model FoodItem {
+  id                     String   @id @default(uuid())
+  nameEn                 String
+  nameHi                 String
+  nameKn                 String
+  category               String   // GRAINS, PULSES, VEGETABLES, FRUITS, DAIRY, PROTEIN_OTHER
+  energyKcal             Float
+  proteinG               Float
+  carbsG                 Float
+  fatG                   Float
+  ironMg                 Float
+  calciumMg              Float
+  vitaminAMcg            Float
+  servingSizeG           Float    @default(100)
+  estimatedCostPer100g   Float    // INR estimated price
+  isLocal                Boolean  @default(true)
+  season                 String   @default("All Season")
+  allergens              String?  // Comma separated or null
+  benefitsEn             String
+  benefitsHi             String
+  benefitsKn             String
+  recipeSuggestionsJson  String?  // JSON array of popular regional recipes
+  createdAt              DateTime @default(now())
+}
+
+model MealPlanRecord {
+  id              String   @id @default(uuid())
+  planTitle       String
+  budgetInr       Float
+  dietaryType     String   // VEGETARIAN, NON_VEGETARIAN, EGGITARIAN
+  familyMembers   Int      @default(4)
+  mealType        String   // BREAKFAST, LUNCH, DINNER, FULL_DAY
+  ingredientsJson String
+  mealsJson       String
+  costBreakdownJson String
+  createdAt       DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String   // CREATE_CHILD, UPDATE_MEASUREMENT, COMPLETE_TASK, EXPORT_REPORT
+  entityType String
+  entityId  String?
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
