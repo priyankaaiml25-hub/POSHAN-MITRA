@@ -87,7 +87,7 @@ export const WorkerDashboardPage: React.FC = () => {
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            Centre: <strong className="text-slate-700">Kaveri Anganwadi Centre #14</strong> (Bengaluru Urban) • Assigned Worker: <strong className="text-slate-700">{user?.name || 'Sunita Devi'}</strong>
+            Centre: <strong className="text-slate-700">Kaveri Anganwadi Centre #14</strong> (Bengaluru Urban) • Assigned Worker: <strong className="text-slate-700">{user?.displayName || 'Sunita Devi'}</strong>
           </p>
         </div>
 
